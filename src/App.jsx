@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styled from '@emotion/styled';
 import CryptoImage from "./Materiales Criptos/img/imagen-criptos.png"
 import Form from './components/Form';
+import Result from './components/Result';
 
 const Heading = styled.h1`
   font-family: "Lato", sans-serif;
@@ -14,7 +15,7 @@ const Heading = styled.h1`
 
   &::after {
     content: "";
-    width: 100px;
+    width: 200px;
     height:6px;
     background-color: #66a2fe;
     display: block;
@@ -42,6 +43,23 @@ const Image = styled.img`
 
 function App() {
 
+  const [ currencies, setCurrencies ] = useState({});
+  const [ check, setCheck ] = useState({});
+
+  useEffect(() => {
+    if(Object.keys(currencies).length > 0) {
+      const checkCrypto = async() => {
+        const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.currency}&tsyms=${currencies.cryptoCurrency}`
+
+        const response = await fetch(url);
+        const result = await response.json();
+        setCheck(result.DISPLAY[currencies.currency][currencies.cryptoCurrency]);
+      }
+
+      checkCrypto();
+    }
+  }, [currencies])
+
   return (
     <Container>
       <Image
@@ -52,7 +70,11 @@ function App() {
       <div>
         <Heading>Instant crypto value query</Heading>
 
-        <Form/>
+        <Form
+          setCurrencies = {setCurrencies}
+        />
+
+        {check.PRICE && <Result />}
       </div>
     </Container>
   )
