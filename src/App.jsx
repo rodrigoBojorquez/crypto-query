@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import styled from '@emotion/styled';
 import CryptoImage from "./Materiales Criptos/img/imagen-criptos.png"
 import Form from './components/Form';
+import Spinner from './components/Spinner';
 import Result from './components/Result';
 
 const Heading = styled.h1`
@@ -45,15 +46,20 @@ function App() {
 
   const [ currencies, setCurrencies ] = useState({});
   const [ check, setCheck ] = useState({});
+  const [ loading, setLoading ] = useState(false);
 
   useEffect(() => {
     if(Object.keys(currencies).length > 0) {
       const checkCrypto = async() => {
-        const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.currency}&tsyms=${currencies.cryptoCurrency}`
+
+        setLoading(true);
+        const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.cryptoCurrency}&tsyms=${currencies.currency}`
 
         const response = await fetch(url);
         const result = await response.json();
-        setCheck(result.DISPLAY[currencies.currency][currencies.cryptoCurrency]);
+        setCheck(result.DISPLAY[currencies.cryptoCurrency][currencies.currency]);
+
+        setLoading(false);
       }
 
       checkCrypto();
@@ -74,7 +80,7 @@ function App() {
           setCurrencies = {setCurrencies}
         />
 
-        {check.PRICE && <Result />}
+        {loading ? <Spinner/> : check.PRICE && <Result check = {check} />}
       </div>
     </Container>
   )
